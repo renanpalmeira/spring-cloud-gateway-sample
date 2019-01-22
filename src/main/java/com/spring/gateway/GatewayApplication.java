@@ -4,7 +4,10 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
+import org.springframework.cloud.gateway.route.RouteLocator;
+import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;
 import org.springframework.cloud.gateway.support.DefaultServerRequest;
+import org.springframework.context.annotation.Bean;
 import org.springframework.core.Ordered;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
@@ -17,18 +20,20 @@ public class GatewayApplication {
 		SpringApplication.run(GatewayApplication.class, args);
 	}
 
-	@Component
-	public static class SampleFilter implements GlobalFilter, Ordered {
-
-		@Override
-		public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
-			return new DefaultServerRequest(exchange).formData()
-					.flatMap(s -> chain.filter(exchange));
-		}
-
-		@Override
-		public int getOrder() {
-			return Ordered.HIGHEST_PRECEDENCE;
-		}
+	@Bean
+	public RouteLocator myRoutes(RouteLocatorBuilder builder) {
+		return builder.routes()
+				.route(p -> p
+						.path("/**")
+						.filters(f -> {
+							return f
+								.modifyRequestBody(String.class, String.class, (serverWebExchange, s) -> {
+									return serverWebExchange.getFormData()
+											.flatMap(b -> Mono.just(s.toUpperCase()+s.toUpperCase()));
+								})
+								.addRequestHeader("Hello", "World");
+						})
+						.uri("http://httpbin.org:80"))
+				.build();
 	}
 }
