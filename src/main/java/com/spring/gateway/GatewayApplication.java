@@ -56,7 +56,7 @@ public class GatewayApplication {
 			ServerRequest serverRequest = new DefaultServerRequest(exchange);
 
 			Mono<?> modifiedBody = serverRequest.bodyToMono(inClass).flatMap((o) -> {
-				// here i can just get the form data, but i don't change response; here i just change the form data
+				// here i can just get the form data, but i don't change response; here i just can change the form data
 				return Mono.just(o);
 			});
 
