@@ -190,7 +190,7 @@ public class GatewayApplication {
 			newExchange.getResponse().setStatusCode(HttpStatus.FORBIDDEN);
 
 			Map<String, String> json =
-					ImmutableMap.of("error", "Instituição de ensino bloqueada.");
+					ImmutableMap.of("error", "lock.");
 
 			return React.mutateResponseToJson(exchange, json).fold(
 					fail -> exchange.getResponse().setComplete(),
